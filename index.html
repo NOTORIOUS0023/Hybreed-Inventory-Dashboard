@@ -28,6 +28,7 @@
     }
     .search-box {
       display: flex;
+      gap: 8px;
     }
     .search-box input {
       padding: 12px 16px;
@@ -91,15 +92,18 @@
     .card.green { background-color: #22c55e; color: white; }
     .card.yellow { background-color: #facc15; color: #92400e; }
     .card.red { background-color: #ef4444; color: white; }
-    .filter-button {
-      padding: 10px 20px;
-      background-color: white;
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .filter-row select, .filter-row button {
+      padding: 10px 12px;
+      font-size: 14px;
       border: 1px solid #d1d5db;
       border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 120px;
-      margin-bottom: 12px;
+      outline: none;
     }
     table {
       width: 100%;
@@ -144,19 +148,32 @@
     </div>
 
     <div class="dashboard">
-     <div class="quick-links">
-  <a href="https://script.google.com/macros/s/AKfycbxTvIJBzAHvkWdMKvjvj0yJasOk7JJxuqNK_RVQ6rg3J5TsZx_BH_PX_jodhXoEwNrq2Q/exec" target="_blank">📝 Inventory Updater</a>
-  <a href="https://script.google.com/macros/s/AKfycbyhaqvUJh2o6Xl2hB4SFF7vwd7A5-W5scWjLpqxwpI1VZQYlA9JG8ASsR9ulu7sv1sO/exec" target="_blank">📦 Stock Receiving Forms</a>
-  <a href="https://script.google.com/macros/s/AKfycbwzfev8WG1J_fGDCLKMzKAZzL8C7en1uchR8aW2pwC-Uh1IYjPVWISLeSLlXw7S3kZF/exec" target="_blank">📊 Inventory Supplies Record</a>
-</div>
-
-
+      <div class="quick-links">
+        <a href="https://script.google.com/macros/s/AKfycbxTvIJBzAHvkWdMKvjvj0yJasOk7JJxuqNK_RVQ6rg3J5TsZx_BH_PX_jodhXoEwNrq2Q/exec" target="_blank">📝 Inventory Updater</a>
+        <a href="https://script.google.com/macros/s/AKfycbyhaqvUJh2o6Xl2hB4SFF7vwd7A5-W5scWjLpqxwpI1VZQYlA9JG8ASsR9ulu7sv1sO/exec" target="_blank">📦 Stock Receiving Forms</a>
+        <a href="https://script.google.com/macros/s/AKfycbwzfev8WG1J_fGDCLKMzKAZzL8C7en1uchR8aW2pwC-Uh1IYjPVWISLeSLlXw7S3kZF/exec" target="_blank">📊 Inventory Supplies Record</a>
+      </div>
 
       <div class="main-content">
         <div class="card-row">
           <div class="card green">📦<br>In Stock Items<br><div id="stockInToday" style="font-size: 26px;">0</div></div>
           <div class="card yellow">✏️<br>Low Stock Items<br><div id="lowStock" style="font-size: 26px;">0</div></div>
           <div class="card red">❌<br>Out of Stock Items<br><div id="outOfStock" style="font-size: 26px;">0</div></div>
+        </div>
+
+        <div class="filter-row">
+          <select id="categoryFilter" onchange="filterTable()">
+            <option value="">All Categories</option>
+          </select>
+
+          <select id="statusFilter" onchange="filterTable()">
+            <option value="">All Statuses</option>
+            <option value="In Stock">In Stock</option>
+            <option value="Needs Reorder">Needs Reorder</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+
+          <button onclick="resetFilters()">Reset Filters</button>
         </div>
 
         <button class="filter-button" onclick="fetchAndDisplayData()">Refresh</button>
@@ -178,7 +195,9 @@
   </div>
 
 <script>
-const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwP6Y4jxUGfQK__smgSGUfTe1DtA6HXg7Ud3vcpGqzM-OjbZhVTUn6KW0l5cx7v2zYvjQ/exec?mode=inventory"; 
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwP6Y4jxUGfQK__smgSGUfTe1DtA6HXg7Ud3vcpGqzM-OjbZhVTUn6KW0l5cx7v2zYvjQ/exec?mode=inventory";
+
+let fullData = [];
 
 function fetchAndDisplayData() {
   fetch(SHEET_API_URL)
@@ -186,74 +205,116 @@ function fetchAndDisplayData() {
     .then(data => {
       console.log("Fetched Data:", data);
 
-      const tbody = document.querySelector("#stockTable tbody");
-      tbody.innerHTML = "";
-
-      let stockInToday = 0;
-      let lowStock = 0;
-      let outOfStock = 0;
-
-      const today = new Date().toISOString().split('T')[0];
-
-      data.forEach(item => {
-        const itemName = item["Item Name"] || "-";
-        const category = item["Category"] || "-";
-        const currentStock = Number(item["Current Stock"]) || 0;
-        const criticalLevel = Number(item["Critical Level"]) || 0;
-        const lastUpdated = item["Last Updated"] || "-";
-
-        let statusText = "";
-        let statusClass = "";
-
-        if (currentStock === 0) {
-          statusText = "Out of Stock";
-          statusClass = "out-of-stock";
-          outOfStock++;
-        } else if (currentStock <= criticalLevel) {
-          statusText = "Needs Reorder";
-          statusClass = "needs-reorder";
-          lowStock++;
-        } else {
-          statusText = "In Stock";
-          statusClass = "in-stock";
-        }
-
-       if (statusText === "In Stock") {
-  stockInToday++;
-}
-
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${itemName}</td>
-          <td>${category}</td>
-          <td><span class="badge ${statusClass}">${statusText}</span></td>
-          <td>${currentStock}</td>
-          <td>${lastUpdated}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById("stockInToday").innerText = stockInToday;
-      document.getElementById("lowStock").innerText = lowStock;
-      document.getElementById("outOfStock").innerText = outOfStock;
+      fullData = data;
+      populateCategoryFilter(data);
+      displayTable(data);
     })
     .catch(err => console.error("Failed to load data:", err));
 }
 
-function searchTable() {
-  const input = document.getElementById("searchInput").value.toUpperCase();
-  const table = document.getElementById("stockTable");
-  const trs = table.querySelectorAll("tbody tr");
+function populateCategoryFilter(data) {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const categories = [...new Set(data.map(item => item["Category"]).filter(c => c))];
 
-  trs.forEach(tr => {
-    const td = tr.querySelector("td");
-    if (td && td.textContent.toUpperCase().indexOf(input) > -1) {
-      tr.style.display = "";
-    } else {
-      tr.style.display = "none";
-    }
+  categoryFilter.innerHTML = '<option value="">All Categories</option>';
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
   });
+}
+
+function displayTable(data) {
+  const tbody = document.querySelector("#stockTable tbody");
+  tbody.innerHTML = "";
+
+  let stockInToday = 0;
+  let lowStock = 0;
+  let outOfStock = 0;
+
+  data.forEach(item => {
+    const itemName = item["Item Name"] || "-";
+    const category = item["Category"] || "-";
+    const currentStock = Number(item["Current Stock"]) || 0;
+    const criticalLevel = Number(item["Critical Level"]) || 0;
+    const lastUpdated = item["Last Updated"] || "-";
+
+    let statusText = "";
+    let statusClass = "";
+
+    if (currentStock === 0) {
+      statusText = "Out of Stock";
+      statusClass = "out-of-stock";
+      outOfStock++;
+    } else if (currentStock <= criticalLevel) {
+      statusText = "Needs Reorder";
+      statusClass = "needs-reorder";
+      lowStock++;
+    } else {
+      statusText = "In Stock";
+      statusClass = "in-stock";
+      stockInToday++;
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${itemName}</td>
+      <td>${category}</td>
+      <td><span class="badge ${statusClass}">${statusText}</span></td>
+      <td>${currentStock}</td>
+      <td>${lastUpdated}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("stockInToday").innerText = stockInToday;
+  document.getElementById("lowStock").innerText = lowStock;
+  document.getElementById("outOfStock").innerText = outOfStock;
+}
+
+function searchTable() {
+  filterTable(); 
+}
+
+function filterTable() {
+  const searchInput = document.getElementById("searchInput").value.toUpperCase();
+  const selectedCategory = document.getElementById("categoryFilter").value;
+  const selectedStatus = document.getElementById("statusFilter").value;
+  const tbody = document.querySelector("#stockTable tbody");
+
+  tbody.innerHTML = "";
+
+  let filteredData = fullData.filter(item => {
+    const itemName = (item["Item Name"] || "").toUpperCase();
+    const category = item["Category"] || "";
+    const currentStock = Number(item["Current Stock"]) || 0;
+    const criticalLevel = Number(item["Critical Level"]) || 0;
+
+    let statusText = "";
+    if (currentStock === 0) {
+      statusText = "Out of Stock";
+    } else if (currentStock <= criticalLevel) {
+      statusText = "Needs Reorder";
+    } else {
+      statusText = "In Stock";
+    }
+
+    return (
+      (itemName.includes(searchInput)) &&
+      (selectedCategory === "" || category === selectedCategory) &&
+      (selectedStatus === "" || statusText === selectedStatus)
+    );
+  });
+
+  displayTable(filteredData);
+}
+
+function resetFilters() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("categoryFilter").value = "";
+  document.getElementById("statusFilter").value = "";
+  displayTable(fullData);
 }
 
 window.onload = fetchAndDisplayData;
