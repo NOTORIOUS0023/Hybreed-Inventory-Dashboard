@@ -146,9 +146,9 @@
     <div class="dashboard">
       <div class="quick-links">
         <a href="#" onclick="window.location.reload()">🏠 Home</a>
-        <a href="https://script.google.com/macros/s/AKfycbxTvIJBzAHvkWdMKvjvj0yJasOk7JJxuqNK_RVQ6rg3J5TsZx_BH_PX_jodhXoEwNrq2Q/exec" target="_blank">📝 Inventory Updater</a>
-        <a href="https://script.google.com/macros/s/AKfycbytxwCDNnMUzzoHEJFcG2R2xLn5TsfgzRxwj7weTgM/exec" target="_blank">📦 Stock Receiving Forms</a>
-        <a href="https://script.google.com/macros/s/AKfycbwzfev8WG1J_fGDCLKMzKAZzL8C7en1uchR8aW2pwC-Uh1IYjPVWISLeSLlXw7S3kZF/exec" target="_blank">📊 Inventory Supplies Record</a>
+        <a href="#" target="_blank">📝 Inventory Updater</a>
+        <a href="#" target="_blank">📦 Stock Receiving Forms</a>
+        <a href="#" target="_blank">📊 Inventory Supplies Record</a>
       </div>
 
       <div class="main-content">
@@ -177,13 +177,14 @@
   </div>
 
 <script>
-const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwP6Y4jxUGfQK__smgSGUfTe1DtA6HXg7Ud3vcpGqzM-OjbZhVTUn6KW0l5cx7v2zYvjQ/exec";
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwP6Y4jxUGfQK__smgSGUfTe1DtA6HXg7Ud3vcpGqzM-OjbZhVTUn6KW0l5cx7v2zYvjQ/exec"; 
 
 function fetchAndDisplayData() {
   fetch(SHEET_API_URL)
     .then(res => res.json())
     .then(data => {
       console.log("Fetched Data:", data);
+
       const tbody = document.querySelector("#stockTable tbody");
       tbody.innerHTML = "";
 
@@ -193,12 +194,12 @@ function fetchAndDisplayData() {
 
       const today = new Date().toISOString().split('T')[0];
 
-      data.forEach(row => {
-        const itemName = row["Item Name"] || "-";
-        const category = row["Category"] || "-";
-        const currentStock = parseInt(row["Current Stock"]) || 0;
-        const criticalLevel = parseInt(row["Critical Level"]) || 0;
-        const updated = row["Last Updated"] || "-";
+      data.forEach(item => {
+        const itemName = item["Item Name"] || "-";
+        const category = item["Category"] || "-";
+        const currentStock = Number(item["Current Stock"]) || 0;
+        const criticalLevel = Number(item["Critical Level"]) || 0;
+        const lastUpdated = item["Last Updated"] || "-";
 
         let statusText = "";
         let statusClass = "";
@@ -216,7 +217,7 @@ function fetchAndDisplayData() {
           statusClass = "in-stock";
         }
 
-        if (updated.split('T')[0] === today) {
+        if (lastUpdated.split('T')[0] === today) {
           stockInToday++;
         }
 
@@ -226,7 +227,7 @@ function fetchAndDisplayData() {
           <td>${category}</td>
           <td><span class="badge ${statusClass}">${statusText}</span></td>
           <td>${currentStock}</td>
-          <td>${updated}</td>
+          <td>${lastUpdated}</td>
         `;
         tbody.appendChild(tr);
       });
