@@ -1,207 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HYBREED INVENTORY DASHBOARD</title>
-  <style>
-    body {margin:0;font-family:"Segoe UI",sans-serif;background:#f9fafb;color:#111827;}
-    .main {max-width:100%;margin:auto;padding:32px 24px;}
-    .header-row {display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-    .header {font-size:28px;font-weight:700;}
-    .search-box {display:flex;gap:8px;}
-    .search-box input, .search-box button, select, .filter-button, .pagination {padding:10px 12px;font-size:14px;border:1px solid #d1d5db;border-radius:8px;outline:none;}
-    .search-box button, .filter-button {background:#2563eb;color:#fff;font-weight:600;cursor:pointer;}
-    .dashboard {display:flex;gap:24px;}
-    .quick-links {display:flex;flex-direction:column;gap:16px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:200px;}
-    .quick-links a {text-decoration:none;color:#1f2937;font-weight:600;font-size:16px;display:flex;align-items:center;gap:10px;}
-    .main-content {flex-grow:1;}
-    .card-row {display:flex;gap:20px;margin-bottom:24px;}
-    .card {flex:1;background:#fff;padding:24px;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.05);font-weight:600;text-align:center;}
-    .card.green {background:#22c55e;color:white;} .card.yellow {background:#facc15;color:#92400e;} .card.red {background:#ef4444;color:white;}
-    .filter-row {display:flex;gap:10px;margin-bottom:16px;align-items:center;}
-    table {width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
-    th,td {padding:16px 20px;text-align:left;border-bottom:1px solid #f3f4f6;font-size:15px;}
-    th {background:#f9fafb;font-weight:600;}
-    .badge {display:inline-block;padding:8px 16px;border-radius:9999px;font-size:14px;font-weight:bold;}
-    .in-stock {background:#34d399;color:white;} .needs-reorder {background:#fbbf24;color:white;} .out-of-stock {background:#ef4444;color:white;}
-    .pagination {margin-top:16px;display:flex;gap:8px;justify-content:center;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYBREED INVENTORY DASHBOARD</title>
+<style>
+body {margin:0;font-family:"Segoe UI",sans-serif;background:#f9fafb;color:#111827;}
+.main {max-width:100%;margin:auto;padding:32px 24px;}
+.header-row {display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.header {font-size:28px;font-weight:700;}
+.top-controls {display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.search-box {display:flex;gap:8px;}
+.search-box input, .search-box button, select, .filter-button, .pagination {padding:10px 12px;font-size:14px;border:1px solid #d1d5db;border-radius:8px;outline:none;}
+.search-box button, .filter-button {background:#2563eb;color:#fff;font-weight:600;cursor:pointer;}
+.dashboard {display:flex;gap:24px;}
+.quick-links {display:flex;flex-direction:column;gap:16px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:200px;}
+.quick-links a {text-decoration:none;color:#1f2937;font-weight:600;font-size:16px;display:flex;align-items:center;gap:10px;}
+.main-content {flex-grow:1;}
+.card-row {display:flex;gap:20px;margin-bottom:24px;}
+.card {flex:1;background:#fff;padding:24px;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.05);font-weight:600;text-align:center;}
+.card.green {background:#22c55e;color:white;} .card.yellow {background:#facc15;color:#92400e;} .card.red {background:#ef4444;color:white;}
+.filter-row {display:flex;gap:10px;margin-bottom:16px;align-items:center;}
+table {width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+th,td {padding:16px 20px;text-align:left;border-bottom:1px solid #f3f4f6;font-size:15px;}
+th {background:#f9fafb;font-weight:600;}
+.badge {display:inline-block;padding:8px 16px;border-radius:9999px;font-size:14px;font-weight:bold;}
+.in-stock {background:#34d399;color:white;} .needs-reorder {background:#fbbf24;color:white;} .out-of-stock {background:#ef4444;color:white;}
+.pagination {display:flex;gap:8px;}
+</style>
 </head>
 <body>
 <div class="main">
-  <div class="header-row">
-    <div class="header">HYBREED INVENTORY DASHBOARD</div>
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search" onkeyup="searchTable()">
-      <button onclick="searchTable()">Search</button>
-    </div>
-  </div>
-  <div class="dashboard">
-    <div class="quick-links">
-      <a href="https://script.google.com/macros/s/AKfycbxTvIJBzAHvkWdMKvjvj0yJasOk7JJxuqNK_RVQ6rg3J5TsZx_BH_PX_jodhXoEwNrq2Q/exec" target="_blank">📝 Inventory Updater</a>
-      <a href="https://script.google.com/macros/s/AKfycbyhaqvUJh2o6Xl2hB4SFF7vwd7A5-W5scWjLpqxwpI1VZQYlA9JG8ASsR9ulu7sv1sO/exec" target="_blank">📦 Stock Receiving Forms</a>
-      <a href="https://script.google.com/macros/s/AKfycbwzfev8WG1J_fGDCLKMzKAZzL8C7en1uchR8aW2pwC-Uh1IYjPVWISLeSLlXw7S3kZF/exec" target="_blank">📊 Inventory Supplies Record</a>
-    </div>
-    <div class="main-content">
-      <div class="card-row">
-        <div class="card green">📦<br>In Stock Items<br><div id="stockInToday" style="font-size:26px;">0</div></div>
-        <div class="card yellow">✏️<br>Low Stock Items<br><div id="lowStock" style="font-size:26px;">0</div></div>
-        <div class="card red">❌<br>Out of Stock Items<br><div id="outOfStock" style="font-size:26px;">0</div></div>
-      </div>
-
-      <div class="filter-row">
-        <select id="categoryFilter" onchange="filterTable()"><option value="">All Categories</option></select>
-        <select id="statusFilter" onchange="filterTable()">
-          <option value="">All Statuses</option>
-          <option value="In Stock">In Stock</option>
-          <option value="Needs Reorder">Needs Reorder</option>
-          <option value="Out of Stock">Out of Stock</option>
-        </select>
-        <button onclick="resetFilters()">Reset Filters</button>
-      </div>
-
-      <button class="filter-button" onclick="fetchAndDisplayData()">Refresh</button>
-
-      <table id="stockTable">
-        <thead>
-          <tr>
-            <th>Item Name</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Stock</th>
-            <th>Last Updated</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <div class="pagination" id="pagination"></div>
-    </div>
-  </div>
+<div class="header-row">
+<div class="header">HYBREED INVENTORY DASHBOARD</div>
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Search" onkeyup="searchTable()">
+<button onclick="searchTable()">Search</button>
 </div>
+</div>
+<div class="dashboard">
+<div class="quick-links">
+<a href="https://script.google.com/macros/s/AKfycbxTvIJBzAHvkWdMKvjvj0yJasOk7JJxuqNK_RVQ6rg3J5TsZx_BH_PX_jodhXoEwNrq2Q/exec" target="_blank">📝 Inventory Updater</a>
+<a href="https://script.google.com/macros/s/AKfycbyhaqvUJh2o6Xl2hB4SFF7vwd7A5-W5scWjLpqxwpI1VZQYlA9JG8ASsR9ulu7sv1sO/exec" target="_blank">📦 Stock Receiving Forms</a>
+<a href="https://script.google.com/macros/s/AKfycbwzfev8WG1J_fGDCLKMzKAZzL8C7en1uchR8aW2pwC-Uh1IYjPVWISLeSLlXw7S3kZF/exec" target="_blank">📊 Inventory Supplies Record</a>
+</div>
+
+<div class="main-content">
+<div class="card-row">
+<div class="card green">📦<br>In Stock Items<br><div id="stockInToday" style="font-size:26px;">0</div></div>
+<div class="card yellow">✏️<br>Low Stock Items<br><div id="lowStock" style="font-size:26px;">0</div></div>
+<div class="card red">❌<br>Out of Stock Items<br><div id="outOfStock" style="font-size:26px;">0</div></div>
+</div>
+
+<div class="top-controls">
+<div class="filter-row">
+<select id="categoryFilter" onchange="filterTable()"><option value="">All Categories</option></select>
+<select id="statusFilter" onchange="filterTable()">
+<option value="">All Statuses</option>
+<option value="In Stock">In Stock</option>
+<option value="Needs Reorder">Needs Reorder</option>
+<option value="Out of Stock">Out of Stock</option>
+</select>
+<button onclick="resetFilters()">Reset Filters</button>
+<button class="filter-button" onclick="fetchAndDisplayData()">Refresh</button>
+</div>
+<div id="pagination" class="pagination"></div>
+</div>
+
+<table id="stockTable">
+<thead>
+<tr><th>Item Name</th><th>Category</th><th>Status</th><th>Stock</th><th>Last Updated</th></tr>
+</thead><tbody></tbody>
+</table>
+</div></div></div>
 
 <script>
 const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwP6Y4jxUGfQK__smgSGUfTe1DtA6HXg7Ud3vcpGqzM-OjbZhVTUn6KW0l5cx7v2zYvjQ/exec?mode=inventory";
 let fullData = [], currentPage = 1, itemsPerPage = 10;
 
 function fetchAndDisplayData() {
-  fetch(SHEET_API_URL)
-    .then(res => res.json())
-    .then(data => {
-      fullData = data;
-      populateCategoryFilter(data);
-      displayTable(data);
-    })
-    .catch(err => console.error("Failed to load data:", err));
+fetch(SHEET_API_URL)
+.then(res => res.json())
+.then(data => {
+fullData = data;
+populateCategoryFilter(data);
+updateSummaryCards(data);
+displayTable(data);
+})
+.catch(err => console.error("Failed to load data:", err));
 }
 
 function populateCategoryFilter(data) {
-  const categoryFilter = document.getElementById("categoryFilter");
-  const categories = [...new Set(data.map(item => item["Category"]).filter(c => c))];
-  categoryFilter.innerHTML = '<option value="">All Categories</option>';
-  categories.forEach(category => {
-    const option = document.createElement("option");
-    option.value = category;
-    option.textContent = category;
-    categoryFilter.appendChild(option);
-  });
+const categoryFilter = document.getElementById("categoryFilter");
+const categories = [...new Set(data.map(item => item["Category"]).filter(c => c))];
+categoryFilter.innerHTML = '<option value="">All Categories</option>';
+categories.forEach(category => {
+const option = document.createElement("option");
+option.value = category;
+option.textContent = category;
+categoryFilter.appendChild(option);
+});
+}
+
+function updateSummaryCards(data) {
+let stockInToday = 0, lowStock = 0, outOfStock = 0;
+data.forEach(item => {
+const currentStock = Number(item["Current Stock"]) || 0;
+const criticalLevel = Number(item["Critical Level"]) || 0;
+if (currentStock === 0) outOfStock++;
+else if (currentStock <= criticalLevel) lowStock++;
+else stockInToday++;
+});
+document.getElementById("stockInToday").innerText = stockInToday;
+document.getElementById("lowStock").innerText = lowStock;
+document.getElementById("outOfStock").innerText = outOfStock;
 }
 
 function displayTable(data) {
-  const tbody = document.querySelector("#stockTable tbody");
-  tbody.innerHTML = "";
-  const start = (currentPage - 1) * itemsPerPage;
-  const paginatedItems = data.slice(start, start + itemsPerPage);
-
-  let stockInToday = 0, lowStock = 0, outOfStock = 0;
-  
-  paginatedItems.forEach(item => {
-    const itemName = item["Item Name"] || "-";
-    const category = item["Category"] || "-";
-    const currentStock = Number(item["Current Stock"]) || 0;
-    const criticalLevel = Number(item["Critical Level"]) || 0;
-    const lastUpdated = item["Last Updated"] || "-";
-    let statusText = "", statusClass = "";
-    if (currentStock === 0) {statusText = "Out of Stock";statusClass = "out-of-stock";outOfStock++;}
-    else if (currentStock <= criticalLevel) {statusText = "Needs Reorder";statusClass = "needs-reorder";lowStock++;}
-    else {statusText = "In Stock";statusClass = "in-stock";stockInToday++;}
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${itemName}</td>
-      <td>${category}</td>
-      <td><span class="badge ${statusClass}">${statusText}</span></td>
-      <td>${currentStock}</td>
-      <td>${lastUpdated}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  document.getElementById("stockInToday").innerText = stockInToday;
-  document.getElementById("lowStock").innerText = lowStock;
-  document.getElementById("outOfStock").innerText = outOfStock;
-  setupPagination(data);
+const tbody = document.querySelector("#stockTable tbody");
+tbody.innerHTML = "";
+const start = (currentPage - 1) * itemsPerPage;
+const paginatedItems = data.slice(start, start + itemsPerPage);
+paginatedItems.forEach(item => {
+const itemName = item["Item Name"] || "-";
+const category = item["Category"] || "-";
+const currentStock = Number(item["Current Stock"]) || 0;
+const criticalLevel = Number(item["Critical Level"]) || 0;
+const lastUpdated = item["Last Updated"] || "-";
+let statusText = "", statusClass = "";
+if (currentStock === 0) {statusText = "Out of Stock";statusClass = "out-of-stock";}
+else if (currentStock <= criticalLevel) {statusText = "Needs Reorder";statusClass = "needs-reorder";}
+else {statusText = "In Stock";statusClass = "in-stock";}
+const tr = document.createElement("tr");
+tr.innerHTML = `<td>${itemName}</td><td>${category}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>${currentStock}</td><td>${lastUpdated}</td>`;
+tbody.appendChild(tr);
+});
+setupPagination(data);
 }
 
 function setupPagination(data) {
-  const pagination = document.getElementById("pagination");
-  pagination.innerHTML = "";
-  const pageCount = Math.ceil(data.length / itemsPerPage);
-
-  if (currentPage > 1) {
-    const prevBtn = document.createElement("button");
-    prevBtn.textContent = "Previous";
-    prevBtn.onclick = () => { currentPage--; displayTable(data); };
-    pagination.appendChild(prevBtn);
-  }
-
-  for (let i = 1; i <= pageCount; i++) {
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    if (i === currentPage) btn.style.background = "#2563eb", btn.style.color = "white";
-    btn.onclick = () => { currentPage = i; displayTable(data); };
-    pagination.appendChild(btn);
-  }
-
-  if (currentPage < pageCount) {
-    const nextBtn = document.createElement("button");
-    nextBtn.textContent = "Next";
-    nextBtn.onclick = () => { currentPage++; displayTable(data); };
-    pagination.appendChild(nextBtn);
-  }
+const pagination = document.getElementById("pagination");
+pagination.innerHTML = "";
+const pageCount = Math.ceil(data.length / itemsPerPage);
+if (currentPage > 1) {
+const prevBtn = document.createElement("button");
+prevBtn.textContent = "Previous";
+prevBtn.onclick = () => { currentPage--; displayTable(data); };
+pagination.appendChild(prevBtn);
+}
+for (let i = 1; i <= pageCount; i++) {
+const btn = document.createElement("button");
+btn.textContent = i;
+if (i === currentPage) btn.style.background = "#2563eb", btn.style.color = "white";
+btn.onclick = () => { currentPage = i; displayTable(data); };
+pagination.appendChild(btn);
+}
+if (currentPage < pageCount) {
+const nextBtn = document.createElement("button");
+nextBtn.textContent = "Next";
+nextBtn.onclick = () => { currentPage++; displayTable(data); };
+pagination.appendChild(nextBtn);
+}
 }
 
-function searchTable() {filterTable();}
+function searchTable() { filterTable(); }
 function filterTable() {
-  const searchInput = document.getElementById("searchInput").value.toUpperCase();
-  const selectedCategory = document.getElementById("categoryFilter").value;
-  const selectedStatus = document.getElementById("statusFilter").value;
-  const filteredData = fullData.filter(item => {
-    const itemName = (item["Item Name"] || "").toUpperCase();
-    const category = item["Category"] || "";
-    const currentStock = Number(item["Current Stock"]) || 0;
-    const criticalLevel = Number(item["Critical Level"]) || 0;
-    let statusText = "";
-    if (currentStock === 0) statusText = "Out of Stock";
-    else if (currentStock <= criticalLevel) statusText = "Needs Reorder";
-    else statusText = "In Stock";
-    return itemName.includes(searchInput) &&
-           (selectedCategory === "" || category === selectedCategory) &&
-           (selectedStatus === "" || statusText === selectedStatus);
-  });
-  currentPage = 1;
-  displayTable(filteredData);
+const searchInput = document.getElementById("searchInput").value.toUpperCase();
+const selectedCategory = document.getElementById("categoryFilter").value;
+const selectedStatus = document.getElementById("statusFilter").value;
+const filteredData = fullData.filter(item => {
+const itemName = (item["Item Name"] || "").toUpperCase();
+const category = item["Category"] || "";
+const currentStock = Number(item["Current Stock"]) || 0;
+const criticalLevel = Number(item["Critical Level"]) || 0;
+let statusText = "";
+if (currentStock === 0) statusText = "Out of Stock";
+else if (currentStock <= criticalLevel) statusText = "Needs Reorder";
+else statusText = "In Stock";
+return itemName.includes(searchInput) &&
+(selectedCategory === "" || category === selectedCategory) &&
+(selectedStatus === "" || statusText === selectedStatus);
+});
+currentPage = 1;
+updateSummaryCards(filteredData);
+displayTable(filteredData);
 }
+
 function resetFilters() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("categoryFilter").value = "";
-  document.getElementById("statusFilter").value = "";
-  currentPage = 1;
-  displayTable(fullData);
+document.getElementById("searchInput").value = "";
+document.getElementById("categoryFilter").value = "";
+document.getElementById("statusFilter").value = "";
+currentPage = 1;
+updateSummaryCards(fullData);
+displayTable(fullData);
 }
 
 window.onload = fetchAndDisplayData;
 </script>
-
 </body>
 </html>
