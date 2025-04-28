@@ -154,7 +154,7 @@
 
       <div class="main-content">
         <div class="card-row">
-          <div class="card green">📦<br>Stock In Today<br><div id="stockInToday" style="font-size: 26px;">0</div></div>
+          <div class="card green">📦<br>In Stock Items<br><div id="stockInToday" style="font-size: 26px;">0</div></div>
           <div class="card yellow">✏️<br>Low Stock Items<br><div id="lowStock" style="font-size: 26px;">0</div></div>
           <div class="card red">❌<br>Out of Stock Items<br><div id="outOfStock" style="font-size: 26px;">0</div></div>
         </div>
@@ -218,9 +218,10 @@ function fetchAndDisplayData() {
           statusClass = "in-stock";
         }
 
-        if (lastUpdated.split('T')[0] === today) {
-          stockInToday++;
-        }
+       if (statusText === "In Stock") {
+  stockInToday++;
+}
+
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
